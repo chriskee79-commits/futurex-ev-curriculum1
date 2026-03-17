@@ -1,0 +1,416 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1rem 0; font-family: var(--font-sans, sans-serif); }
+
+.tabs { display: flex; gap: 6px; margin-bottom: 1.2rem; flex-wrap: wrap; }
+.tab { padding: 7px 16px; font-size: 13px; font-weight: 500; border-radius: 20px;
+  border: 0.5px solid var(--color-border-secondary); cursor: pointer;
+  background: transparent; color: var(--color-text-secondary); transition: all 0.15s; }
+.tab:hover { background: var(--color-background-secondary); }
+.tab.on-teal  { background: #E0F2F1; color: #00695C; border-color: #00897B; }
+.tab.on-blue  { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); }
+.tab.on-amber { background: #FAEEDA; color: #854F0B; border-color: #BA7517; }
+.panel { display: none; }
+.panel.show { display: block; }
+
+/* ── 통계 ── */
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.2rem; }
+.stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; }
+.stat-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 3px; }
+.stat-val { font-size: 22px; font-weight: 600; color: var(--color-text-primary); line-height: 1.2; }
+.stat-unit { font-size: 11px; color: var(--color-text-secondary); font-weight: 400; }
+
+/* ── 영역 섹션 ── */
+.area-sec { margin-bottom: 1.4rem; }
+.area-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.area-bar { width: 4px; height: 22px; border-radius: 2px; flex-shrink: 0; }
+.area-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); }
+.area-sub { font-size: 12px; color: var(--color-text-secondary); }
+.mod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 7px; }
+.mod-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg);
+  background: var(--color-background-primary); overflow: hidden; transition: border-color 0.15s; }
+.mod-card:hover { border-color: var(--color-border-secondary); }
+.mod-top { padding: 10px 12px 8px; }
+.mod-code { font-size: 10px; font-weight: 600; color: var(--color-text-secondary); margin-bottom: 3px; }
+.mod-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); line-height: 1.4; margin-bottom: 6px; }
+.mod-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.tag { font-size: 10px; padding: 1px 7px; border-radius: 6px; }
+.tag-t   { background: var(--color-background-info); color: var(--color-text-info); }
+.tag-p   { background: #E1F5EE; color: #0F6E56; }
+.tag-law { background: #FAECE7; color: #993C1D; }
+.mod-bottom { padding: 5px 12px 8px; border-top: 0.5px solid var(--color-border-tertiary);
+  display: flex; justify-content: space-between; align-items: center; }
+.mod-ncs { font-size: 10px; color: var(--color-text-secondary); }
+.mod-lv { font-size: 10px; font-weight: 500; padding: 1px 7px; border-radius: 6px; }
+.lv3 { background: #E1F5EE; color: #0F6E56; }
+.lv4 { background: var(--color-background-info); color: var(--color-text-info); }
+.lv5 { background: #FAEEDA; color: #854F0B; }
+
+/* ── 상세 표 ── */
+.detail-area { margin-bottom: 1.6rem; }
+.detail-area-title {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px; border-radius: 8px 8px 0 0;
+  font-size: 13px; font-weight: 600;
+}
+.detail-table { width: 100%; border-collapse: collapse;
+  border: 0.5px solid var(--color-border-tertiary); border-top: none;
+  border-radius: 0 0 8px 8px; overflow: hidden; }
+.detail-table th { font-size: 11px; font-weight: 500; color: var(--color-text-secondary);
+  padding: 7px 12px; background: var(--color-background-secondary);
+  border-bottom: 0.5px solid var(--color-border-tertiary); text-align: left; }
+.detail-table td { font-size: 12px; padding: 10px 12px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  color: var(--color-text-primary); vertical-align: top; line-height: 1.6; }
+.detail-table tr:last-child td { border-bottom: none; }
+.detail-table tr:hover td { background: var(--color-background-secondary); }
+.td-code { font-weight: 600; white-space: nowrap; font-size: 12px; }
+.td-name { font-weight: 500; margin-bottom: 3px; }
+.td-desc { font-size: 11px; color: var(--color-text-secondary); }
+.td-type { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+
+/* ── 이수체계 ── */
+.flow-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1.4rem; }
+.flow-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg);
+  background: var(--color-background-primary); padding: 14px; }
+.flow-stage { font-size: 10px; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+.flow-name { font-size: 13px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 10px; line-height: 1.4; }
+.flow-mods { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.flow-mod { font-size: 10px; padding: 2px 7px; border-radius: 5px;
+  background: var(--color-background-secondary); color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-border-tertiary); }
+.flow-note { font-size: 11px; padding: 5px 9px; border-radius: 5px; margin-top: 6px; }
+
+/* ── 평가 기준 ── */
+.eval-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 1.4rem; }
+.eval-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg);
+  background: var(--color-background-primary); overflow: hidden; }
+.eval-head { padding: 10px 14px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.eval-area-label { font-size: 11px; font-weight: 600; margin-bottom: 2px; }
+.eval-area-name { font-size: 12px; color: var(--color-text-secondary); }
+.eval-body { padding: 10px 14px; }
+.eval-item { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 7px; font-size: 12px; color: var(--color-text-primary); }
+.eval-item:last-child { margin-bottom: 0; }
+.eval-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+
+/* ── 시설 장비 ── */
+.equip-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.equip-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg);
+  background: var(--color-background-primary); padding: 12px 14px; }
+.equip-icon { font-size: 16px; margin-bottom: 5px; }
+.equip-title { font-size: 12px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 6px; }
+.equip-item { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 3px; padding-left: 10px; position: relative; }
+.equip-item::before { content:'·'; position:absolute; left:2px; }
+
+.divhr { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 14px 0; }
+.section-label { font-size: 11px; font-weight: 600; color: var(--color-text-secondary);
+  margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+</style>
+
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab on-teal" onclick="sw('m','on-teal',this)">① 커리큘럼 맵</button>
+    <button class="tab" onclick="sw('d','on-blue',this)">② 모듈 상세</button>
+    <button class="tab" onclick="sw('f','on-amber',this)">③ 이수체계·평가</button>
+  </div>
+
+  <!-- ① 커리큘럼 맵 -->
+  <div id="pm" class="panel show">
+    <div class="stat-row">
+      <div class="stat"><div class="stat-label">총 영역</div><div><span class="stat-val">4</span><span class="stat-unit"> 개</span></div></div>
+      <div class="stat"><div class="stat-label">총 모듈</div><div><span class="stat-val">14</span><span class="stat-unit"> 개</span></div></div>
+      <div class="stat"><div class="stat-label">총 교육시간</div><div><span class="stat-val">120</span><span class="stat-unit"> 시간</span></div></div>
+      <div class="stat"><div class="stat-label">NCS 수준</div><div><span class="stat-val">3</span><span class="stat-unit"> → 5</span></div></div>
+    </div>
+    <div id="modMap"></div>
+  </div>
+
+  <!-- ② 모듈 상세 -->
+  <div id="pd" class="panel">
+    <div id="detailMap"></div>
+  </div>
+
+  <!-- ③ 이수체계·평가 -->
+  <div id="pf" class="panel">
+    <div class="section-label">이수 체계</div>
+    <div class="flow-grid">
+      <div class="flow-card">
+        <div class="flow-stage" style="color:#00897B">STAGE 1 · NCS 수준 3</div>
+        <div class="flow-name">기초 이론<br>법정교육 이수</div>
+        <div class="flow-mods">
+          <span class="flow-mod">A-01</span><span class="flow-mod">A-02</span>
+          <span class="flow-mod">A-03</span><span class="flow-mod" style="color:#993C1D;border-color:#993C1D;background:#FAECE7">A-04 ★</span>
+        </div>
+        <div class="flow-note" style="background:#FAECE7;color:#993C1D">★ A-04 이수 후 고전압 작업 자격 부여</div>
+      </div>
+      <div class="flow-card">
+        <div class="flow-stage" style="color:#1565C0">STAGE 2 · NCS 수준 4</div>
+        <div class="flow-name">PE·배터리<br>충전·열관리 심화</div>
+        <div class="flow-mods">
+          <span class="flow-mod">B-01</span><span class="flow-mod">B-02</span>
+          <span class="flow-mod">B-03</span><span class="flow-mod">B-04</span>
+          <span class="flow-mod">C-01</span><span class="flow-mod">C-02</span>
+          <span class="flow-mod">C-03</span>
+        </div>
+        <div class="flow-note" style="background:var(--color-background-info);color:var(--color-text-info)">B·C 영역 병행 가능 (B 우선 권장)</div>
+      </div>
+      <div class="flow-card">
+        <div class="flow-stage" style="color:#E65100">STAGE 3 · NCS 수준 5</div>
+        <div class="flow-name">진단·정비 실무<br>법정 검사</div>
+        <div class="flow-mods">
+          <span class="flow-mod">D-01</span><span class="flow-mod">D-02</span>
+          <span class="flow-mod">D-03</span><span class="flow-mod">D-04</span>
+        </div>
+        <div class="flow-note" style="background:#FAEEDA;color:#854F0B">B·C 전 모듈 이수 후 진입</div>
+      </div>
+    </div>
+
+    <div class="divhr"></div>
+    <div class="section-label">영역별 이수 기준</div>
+    <div class="eval-grid">
+      <div class="eval-card">
+        <div class="eval-head" style="background:#E0F2F1">
+          <div class="eval-area-label" style="color:#00695C">영역 A · 기초 이론</div>
+          <div class="eval-area-name">NCS 수준 3 · 32시간</div>
+        </div>
+        <div class="eval-body">
+          <div class="eval-item"><div class="eval-dot" style="background:#00897B"></div>이론 평가 70점 이상</div>
+          <div class="eval-item"><div class="eval-dot" style="background:#00897B"></div>실습 체크리스트 전 항목 완료</div>
+          <div class="eval-item"><div class="eval-dot" style="background:#00897B"></div>A-04 전 차시 출석 (8/8시간) 필수</div>
+          <div class="eval-item"><div class="eval-dot" style="background:#00897B"></div>고전압 안전 법정교육 이수확인서 발급</div>
+        </div>
+      </div>
+      <div class="eval-card">
+        <div class="eval-head" style="background:var(--color-background-info)">
+          <div class="eval-area-label" style="color:var(--color-text-info)">영역 B · PE·배터리 심화</div>
+          <div class="eval-area-name">NCS 수준 4 · 32시간</div>
+        </div>
+        <div class="eval-body">
+          <div class="eval-item"><div class="eval-dot" style="background:#1565C0"></div>이론 평가 70점 이상</div>
+          <div class="eval-item"><div class="eval-dot" style="background:#1565C0"></div>B-02·B-04 실습 체크리스트 전 항목 완료</div>
+          <div class="eval-item"><div class="eval-dot" style="background:#1565C0"></div>절연저항 측정 정상 기준 확인</div>
+          <div class="eval-item"><div class="eval-dot" style="background:#1565C0"></div>잔류전압 10V 미만 확인 후 작업 수행</div>
+        </div>
+      </div>
+      <div class="eval-card">
+        <div class="eval-head" style="background:var(--color-background-info)">
+          <div class="eval-area-label" style="color:var(--color-text-info)">영역 C · 충전·열관리</div>
+          <div class="eval-area-name">NCS 수준 4 · 24시간</div>
+        </div>
+        <div class="eval-body">
+          <div class="eval-item"><div class="eval-dot" style="background:#1565C0"></div>이론 평가 70점 이상</div>
+          <div class="eval-item"><div class="eval-dot" style="background:#1565C0"></div>C-02 실습 체크리스트 전 항목 완료</div>
+          <div class="eval-item"><div class="eval-dot" style="background:#1565C0"></div>OBC 전압·전류 측정값 판독 완료</div>
+          <div class="eval-item"><div class="eval-dot" style="background:#1565C0"></div>DTC 코드 판독 및 원인 분석 제출</div>
+        </div>
+      </div>
+      <div class="eval-card">
+        <div class="eval-head" style="background:#FAEEDA">
+          <div class="eval-area-label" style="color:#854F0B">영역 D · 진단·정비 실무</div>
+          <div class="eval-area-name">NCS 수준 5 · 32시간</div>
+        </div>
+        <div class="eval-body">
+          <div class="eval-item"><div class="eval-dot" style="background:#E65100"></div>이론 평가 70점 이상</div>
+          <div class="eval-item"><div class="eval-dot" style="background:#E65100"></div>D-02 케이스 스터디 5개 이상 완료</div>
+          <div class="eval-item"><div class="eval-dot" style="background:#E65100"></div>D-03 SOH 평가 및 4R 판정 실습 완료</div>
+          <div class="eval-item"><div class="eval-dot" style="background:#E65100"></div>D-04 법정검사 전 항목 수행 확인</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divhr"></div>
+    <div class="section-label">시설·장비 기준</div>
+    <div class="equip-grid">
+      <div class="equip-card">
+        <div class="equip-icon">🚗</div>
+        <div class="equip-title">교육 차량</div>
+        <div class="equip-item">전기차 실차 1대 이상 (아이오닉 5 또는 동급)</div>
+        <div class="equip-item">교육용 컷어웨이 모델 권장</div>
+        <div class="equip-item">배터리·PE 시스템 노출 구조 차량</div>
+      </div>
+      <div class="equip-card">
+        <div class="equip-icon">🔬</div>
+        <div class="equip-title">진단 장비</div>
+        <div class="equip-item">GDS (현대기아 전용) 또는 동급 OBD 진단기</div>
+        <div class="equip-item">절연 멀티미터 (CAT III 이상)</div>
+        <div class="equip-item">절연저항계 (메거, 1kV 이상)</div>
+        <div class="equip-item">오실로스코프 (파형 측정용)</div>
+      </div>
+      <div class="equip-card">
+        <div class="equip-icon">🦺</div>
+        <div class="equip-title">안전 장비</div>
+        <div class="equip-item">절연 장갑 (IEC 60903 Class 0 이상)</div>
+        <div class="equip-item">절연 안전화 (KS M 6613 EH 등급)</div>
+        <div class="equip-item">방호 안면 마스크 (Arc Flash 등급)</div>
+        <div class="equip-item">절연 공구 세트 (IEC 60900)</div>
+        <div class="equip-item">절연 매트 (내전압 10kV 이상)</div>
+      </div>
+      <div class="equip-card">
+        <div class="equip-icon">🏫</div>
+        <div class="equip-title">실습 환경</div>
+        <div class="equip-item">고전압 작업 전용 실습실 (환기 필수)</div>
+        <div class="equip-item">비상 차단 스위치 설치</div>
+        <div class="equip-item">AED (자동 제세동기) 비치</div>
+        <div class="equip-item">CO₂ 소화기 (전기차 화재 대응)</div>
+      </div>
+    </div>
+
+    <div class="divhr"></div>
+    <div style="font-size:11px;color:var(--color-text-secondary);text-align:center;line-height:2">
+      NCS 1506030117 전기자동차정비 · v2.0 · 2026년 3월 기준 · 퓨처렉스(주) 모빌리티사업부
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 영역 데이터 ─────────────────────────────────────────────
+const areas = [
+  { color:'#00897B', title:'영역 A · 전기자동차 기초 이론', sub:'선수학습 불필요 · NCS 수준 3 · 32시간',
+    mods:[
+      { code:'A-01', name:'xEV 개론 및 전동화 전환 배경',
+        tags:[['이론','tag-t']], lv:'수준 3', lvcls:'lv3',
+        desc:'HEV·PHEV·BEV·FCEV 분류 · 전동화 3대 동인(규제·원가·TCO) · PE 시스템 세대별 진화 · E-GMP 비교', h:'8h', type:[['이론','tag-t']] },
+      { code:'A-02', name:'전기·전자 회로 기초',
+        tags:[['이론','tag-t'],['실습','tag-p']], lv:'수준 3', lvcls:'lv3',
+        desc:'옴의 법칙 · 직렬·병렬 회로 · KCL/KVL · DC/AC · 전기차 고전압 체계 · 멀티미터 측정 실습', h:'8h', type:[['이론','tag-t'],['실습','tag-p']] },
+      { code:'A-03', name:'전기자동차 전체 시스템 구조',
+        tags:[['이론','tag-t'],['실습','tag-p']], lv:'수준 3', lvcls:'lv3',
+        desc:'ICE vs BEV 부품 대응 · PE·배터리·충전·TMS·보조 시스템 · 에너지 흐름 5모드 · 실차 확인 실습', h:'8h', type:[['이론','tag-t'],['실습','tag-p']] },
+      { code:'A-04', name:'고전압 안전 및 법정교육',
+        tags:[['이론','tag-t'],['법정','tag-law']], lv:'수준 3', lvcls:'lv3',
+        desc:'고전압 위험(ISO 6469-3) · IEC 60479 감전 전류 · PPE 5종 · LOTO 6단계 · MSD 탈거 · 배터리 화재 대응', h:'8h', type:[['이론','tag-t'],['실습','tag-p'],['법정','tag-law']] },
+    ]},
+  { color:'#1565C0', title:'영역 B · PE 시스템 및 배터리 심화', sub:'A 영역 이수 후 · NCS 수준 4 · 32시간',
+    mods:[
+      { code:'B-01', name:'PE 시스템 구조와 원리',
+        tags:[['이론','tag-t']], lv:'수준 4', lvcls:'lv4',
+        desc:'3세대 모터·인버터·감속기 통합 구조 · 헤어핀 권선 · SiC MOSFET · 유냉각 방식 · E-GMP 디스커넥터', h:'8h', type:[['이론','tag-t']] },
+      { code:'B-02', name:'구동모터·인버터 점검 및 정비 실습',
+        tags:[['실습','tag-p']], lv:'수준 4', lvcls:'lv4',
+        desc:'절연저항 측정 · 커패시터 잔류전압 방전 확인 · 3상 권선 저항 밸런스 · 모터 냉각유 점검 · DTC 확인', h:'8h', type:[['실습','tag-p']] },
+      { code:'B-03', name:'고전압 배터리 시스템 구조·BMS',
+        tags:[['이론','tag-t']], lv:'수준 4', lvcls:'lv4',
+        desc:'셀→모듈→팩 계층 구조 · BMS 6기능(SOC·SOH·셀밸런싱·온도·보호·절연감시) · 배터리 열화 메커니즘', h:'8h', type:[['이론','tag-t']] },
+      { code:'B-04', name:'배터리 팩 점검·교환 실습',
+        tags:[['실습','tag-p']], lv:'수준 4', lvcls:'lv4',
+        desc:'LOTO 6단계 적용 후 팩 탈거·장착 · 절연저항·OCV 측정 · 셀 전압 편차 확인 · 팩 하부 손상 점검', h:'8h', type:[['실습','tag-p']] },
+    ]},
+  { color:'#1565C0', title:'영역 C · 충전 시스템 및 열관리', sub:'A 영역 이수 후 · NCS 수준 4 · 24시간',
+    mods:[
+      { code:'C-01', name:'충전 시스템 구조와 통신 프로토콜',
+        tags:[['이론','tag-t']], lv:'수준 4', lvcls:'lv4',
+        desc:'OBC·ICCU·멀티충전·V2L 구성 · 완속·급속·초고속 비교 · CAN/PLC 충전 통신 · 충전 커넥터 규격', h:'8h', type:[['이론','tag-t']] },
+      { code:'C-02', name:'OBC·ICCU·충전 인프라 정비 실습',
+        tags:[['실습','tag-p']], lv:'수준 4', lvcls:'lv4',
+        desc:'OBC 입출력 전압·전류 측정 · ICCU DC-DC 변환 출력 점검 · 충전 포트 단자 점검 · 충전 DTC 판독', h:'8h', type:[['실습','tag-p']] },
+      { code:'C-03', name:'열관리(TMS) 시스템 구조와 정비',
+        tags:[['이론','tag-t'],['실습','tag-p']], lv:'수준 4', lvcls:'lv4',
+        desc:'배터리·PE 냉각 회로 구조 · 히트펌프 원리 · 냉각수 압력 테스트 · 온도 센서 저항 측정 · TMS DTC', h:'8h', type:[['이론','tag-t'],['실습','tag-p']] },
+    ]},
+  { color:'#E65100', title:'영역 D · 진단·정비 실무 및 검사', sub:'B·C 영역 이수 후 · NCS 수준 5 · 32시간',
+    mods:[
+      { code:'D-01', name:'전기차 진단 장비 활용 및 DTC 분석',
+        tags:[['이론','tag-t'],['실습','tag-p']], lv:'수준 5', lvcls:'lv5',
+        desc:'GDS·SCAN 진단기 활용 · DTC 코드 체계 및 분석 · 부품별 파형 측정 · 현장 진단 절차 실습', h:'8h', type:[['이론','tag-t'],['실습','tag-p']] },
+      { code:'D-02', name:'고장 유형별 수리 케이스 스터디',
+        tags:[['실습','tag-p']], lv:'수준 5', lvcls:'lv5',
+        desc:'PE·배터리·충전 주요 고장 5개 이상 케이스 분석 · 원인 추적 · 수리 절차 수행 · 재발 방지 점검', h:'8h', type:[['실습','tag-p']] },
+      { code:'D-03', name:'배터리 SOH 평가 및 수명 예측',
+        tags:[['이론','tag-t'],['실습','tag-p']], lv:'수준 5', lvcls:'lv5',
+        desc:'SOH 평가 지표 및 측정법 · 배터리 성능 저하 분석 · 4R(재사용·재제조·재충전·재활용) 판정 기준', h:'8h', type:[['이론','tag-t'],['실습','tag-p']] },
+      { code:'D-04', name:'전기자동차 법정 검사 및 관련 법규',
+        tags:[['이론','tag-t'],['법정','tag-law']], lv:'수준 5', lvcls:'lv5',
+        desc:'전기차 정기검사 항목 및 절차 · 자동차관리법·환경부 규정 · 검사 장비 활용 · 판정 및 불합격 처리', h:'8h', type:[['이론','tag-t'],['법정','tag-law']] },
+    ]},
+];
+
+// ── 커리큘럼 맵 빌드 ────────────────────────────────────────
+function buildMap() {
+  const c = document.getElementById('modMap');
+  areas.forEach(a => {
+    const sec = document.createElement('div');
+    sec.className = 'area-sec';
+    sec.innerHTML = `
+      <div class="area-head">
+        <div class="area-bar" style="background:${a.color}"></div>
+        <div>
+          <div class="area-title">${a.title}</div>
+          <div class="area-sub">${a.sub}</div>
+        </div>
+      </div>
+      <div class="mod-grid">
+        ${a.mods.map(m=>`
+          <div class="mod-card">
+            <div class="mod-top">
+              <div class="mod-code" style="color:${a.color}">${m.code}</div>
+              <div class="mod-name">${m.name}</div>
+              <div class="mod-tags">${m.tags.map(([l,c])=>`<span class="tag ${c}">${l}</span>`).join('')}</div>
+            </div>
+            <div class="mod-bottom">
+              <span class="mod-ncs">NCS 1506030117</span>
+              <span class="mod-lv ${m.lvcls}">${m.lv}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    c.appendChild(sec);
+  });
+}
+
+// ── 모듈 상세 빌드 ───────────────────────────────────────────
+function buildDetail() {
+  const c = document.getElementById('detailMap');
+  areas.forEach(a => {
+    const sec = document.createElement('div');
+    sec.className = 'detail-area';
+    sec.innerHTML = `
+      <div class="detail-area-title" style="background:${a.color}18;color:${a.color};border:0.5px solid ${a.color}40;border-radius:8px 8px 0 0">
+        ${a.title} <span style="font-weight:400;font-size:11px;color:${a.color}cc;margin-left:8px">${a.sub}</span>
+      </div>
+      <table class="detail-table">
+        <thead>
+          <tr>
+            <th style="width:60px">코드</th>
+            <th>모듈명 / 핵심 내용</th>
+            <th style="width:100px">유형</th>
+            <th style="width:45px;text-align:center">시간</th>
+            <th style="width:60px;text-align:center">수준</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${a.mods.map(m=>`
+            <tr>
+              <td><span class="td-code" style="color:${a.color}">${m.code}</span></td>
+              <td>
+                <div class="td-name">${m.name}</div>
+                <div class="td-desc">${m.desc}</div>
+              </td>
+              <td>
+                <div class="td-type">
+                  ${m.type.map(([l,c])=>`<span class="tag ${c}" style="display:inline-block">${l}</span>`).join('')}
+                </div>
+              </td>
+              <td style="text-align:center;font-size:12px;color:var(--color-text-secondary)">${m.h}</td>
+              <td style="text-align:center"><span class="mod-lv ${m.lvcls}">${m.lv}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+    c.appendChild(sec);
+  });
+}
+
+// ── 탭 전환 ─────────────────────────────────────────────────
+function sw(id, cls, btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('show'));
+  document.querySelectorAll('.tab').forEach(t=>t.className='tab');
+  document.getElementById('p'+id).classList.add('show');
+  btn.className='tab '+cls;
+}
+
+buildMap();
+buildDetail();
+</script>
